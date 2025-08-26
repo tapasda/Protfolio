@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AI Chatbox Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4ff; }
+    .chatbox-container {
+      position: fixed;
+      right: 30px;
+      bottom: 30px;
+      width: 360px;
+      max-width: 94vw;
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 6px 32px #1a223833;
+      border: 2px solid #ff6a3d;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: box-shadow 0.2s;
+    }
+    .chatbox-header {
+      background: #1a2238;
+      color: #fff;
+      padding: 13px 20px;
+      font-size: 1.13rem;
+      font-weight: 600;
+      letter-spacing: 0.7px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .chatbox-close {
+      background: none;
+      border: none;
+      color: #ff6a3d;
+      font-size: 1.3rem;
+      cursor: pointer;
+    }
+    .chatbox-messages {
+      padding: 16px;
+      height: 320px;
+      overflow-y: auto;
+      background: #f0f4ff;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      font-size: 1rem;
+    }
+    .chat-msg {
+      display: flex;
+      flex-direction: column;
+      max-width: 85%;
+    }
+    .chat-msg.user {
+      align-self: flex-end;
+      text-align: right;
+    }
+    .chat-msg.ai {
+      align-self: flex-start;
+      text-align: left;
+    }
+    .chat-msg .bubble {
+      padding: 10px 16px;
+      border-radius: 18px;
+      margin-bottom: 2px;
+      display: inline-block;
+      font-size: 1.04rem;
+      line-height: 1.3;
+    }
+    .chat-msg.user .bubble {
+      background: #ff6a3d;
+      color: #fff;
+      border-bottom-right-radius: 4px;
+    }
+    .chat-msg.ai .bubble {
+      background: #fff;
+      color: #1a2238;
+      border: 1.5px solid #eaeaff;
+      border-bottom-left-radius: 4px;
+    }
+    .chatbox-input-area {
+      display: flex;
+      border-top: 1.5px solid #eaeaff;
+      background: #fff;
+      padding: 10px;
+      gap: 8px;
+    }
+    .chatbox-input-area input {
+      flex: 1;
+      border: 1.5px solid #eaeaff;
+      border-radius: 8px;
+      padding: 9px 13px;
+      font-size: 1rem;
+    }
+    .chatbox-input-area button {
+      background: #ff6a3d;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.16s;
+    }
+    .chatbox-input-area button:hover {
+      background: #e85c2a;
+    }
+    @media (max-width: 500px) {
+      .chatbox-container { right: 0; left: 0; bottom: 0; width: 100vw; border-radius: 0; }
+    }
+    /* Show/Hide Button */
+    .chatbox-toggle-btn {
+      position: fixed;
+      right: 30px;
+      bottom: 30px;
+      background: #1a2238;
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      font-size: 2rem;
+      box-shadow: 0 2px 12px #1a223877;
+      cursor: pointer;
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    .chatbox-toggle-btn:hover {
+      background: #ff6a3d;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <!-- Toggle Button -->
+  <button class="chatbox-toggle-btn" id="chatToggleBtn" title="Chat with AI">💬</button>
+
+  <!-- Chatbox -->
+  <div class="chatbox-container" id="chatbox" style="display:none;">
+    <div class="chatbox-header">
+      <span>AI Chatbox</span>
+      <button class="chatbox-close" id="chatCloseBtn" title="Close">×</button>
+    </div>
+    <div class="chatbox-messages" id="chatMessages">
+      <div class="chat-msg ai">
+        <span class="bubble">Hello! 👋<br>I'm your AI assistant. How can I help you today?</span>
+      </div>
+    </div>
+    <form class="chatbox-input-area" id="chatForm" autocomplete="off">
+      <input type="text" id="chatInput" placeholder="Type your message..." required />
+      <button type="submit">Send</button>
+    </form>
+  </div>
+
+  <script>
+    // Toggle
+    const chatbox = document.getElementById('chatbox');
+    const chatToggleBtn = document.getElementById('chatToggleBtn');
+    const chatCloseBtn = document.getElementById('chatCloseBtn');
+    chatToggleBtn.onclick = function() { chatbox.style.display = 'flex'; chatToggleBtn.style.display = 'none'; }
+    chatCloseBtn.onclick = function() { chatbox.style.display = 'none'; chatToggleBtn.style.display = 'flex'; }
+
+    // Chat logic (simulated AI)
+    const chatMessages = document.getElementById('chatMessages');
+    const chatForm = document.getElementById('chatForm');
+    const chatInput = document.getElementById('chatInput');
+
+    const aiResponses = [
+      "I'm here to help! Tell me more about your question.",
+      "That's an interesting question. Let me think...",
+      "Thank you for reaching out. Could you clarify a bit more?",
+      "I'm an AI assistant. I can answer your queries or guide you to the right resources.",
+      "Sure! Here's what I suggest...",
+      "Feel free to ask anything about my skills or experience.",
+      "Let me check that for you!",
+      "I appreciate your message. How can I assist further?"
+    ];
+
+    function appendMsg(msg, sender='user') {
+      const div = document.createElement('div');
+      div.className = 'chat-msg ' + sender;
+      div.innerHTML = `<span class="bubble">${msg}</span>`;
+      chatMessages.appendChild(div);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    chatForm.onsubmit = function(e) {
+      e.preventDefault();
+      const msg = chatInput.value.trim();
+      if (!msg) return;
+      appendMsg(msg, 'user');
+      chatInput.value = '';
+      setTimeout(() => {
+        // Simulated AI response (random)
+        const aiMsg = aiResponses[Math.floor(Math.random() * aiResponses.length)];
+        appendMsg(aiMsg, 'ai');
+      }, 700);
+    }
+  </script>
+</body>
+</html>

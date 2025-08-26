@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tapas Chakraborty | IT Support & Infrastructure Specialist</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="logo.png" />
+</head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AI Chatbox Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4ff; }
+    .chatbox-container {
+      position: fixed;
+      right: 30px;
+      bottom: 30px;
+      width: 360px;
+      max-width: 94vw;
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 6px 32px #1a223833;
+      border: 2px solid #ff6a3d;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: box-shadow 0.2s;
+    }
+    .chatbox-header {
+      background: #1a2238;
+      color: #fff;
+      padding: 13px 20px;
+      font-size: 1.13rem;
+      font-weight: 600;
+      letter-spacing: 0.7px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .chatbox-close {
+      background: none;
+      border: none;
+      color: #ff6a3d;
+      font-size: 1.3rem;
+      cursor: pointer;
+    }
+    .chatbox-messages {
+      padding: 16px;
+      height: 320px;
+      overflow-y: auto;
+      background: #f0f4ff;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      font-size: 1rem;
+    }
+    .chat-msg {
+      display: flex;
+      flex-direction: column;
+      max-width: 85%;
+    }
+    .chat-msg.user {
+      align-self: flex-end;
+      text-align: right;
+    }
+    .chat-msg.ai {
+      align-self: flex-start;
+      text-align: left;
+    }
+    .chat-msg .bubble {
+      padding: 10px 16px;
+      border-radius: 18px;
+      margin-bottom: 2px;
+      display: inline-block;
+      font-size: 1.04rem;
+      line-height: 1.3;
+    }
+    .chat-msg.user .bubble {
+      background: #ff6a3d;
+      color: #fff;
+      border-bottom-right-radius: 4px;
+    }
+    .chat-msg.ai .bubble {
+      background: #fff;
+      color: #1a2238;
+      border: 1.5px solid #eaeaff;
+      border-bottom-left-radius: 4px;
+    }
+    .chatbox-input-area {
+      display: flex;
+      border-top: 1.5px solid #eaeaff;
+      background: #fff;
+      padding: 10px;
+      gap: 8px;
+    }
+    .chatbox-input-area input {
+      flex: 1;
+      border: 1.5px solid #eaeaff;
+      border-radius: 8px;
+      padding: 9px 13px;
+      font-size: 1rem;
+    }
+    .chatbox-input-area button {
+      background: #ff6a3d;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.16s;
+    }
+    .chatbox-input-area button:hover {
+      background: #e85c2a;
+    }
+    @media (max-width: 500px) {
+      .chatbox-container { right: 0; left: 0; bottom: 0; width: 100vw; border-radius: 0; }
+    }
+    /* Show/Hide Button */
+    .chatbox-toggle-btn {
+      position: fixed;
+      right: 30px;
+      bottom: 30px;
+      background: #1a2238;
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      font-size: 2rem;
+      box-shadow: 0 2px 12px #1a223877;
+      cursor: pointer;
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    .chatbox-toggle-btn:hover {
+      background: #ff6a3d;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <!-- Toggle Button -->
+  <button class="chatbox-toggle-btn" id="chatToggleBtn" title="Chat with AI">💬</button>
+
+  <!-- Chatbox -->
+  <div class="chatbox-container" id="chatbox" style="display:none;">
+    <div class="chatbox-header">
+      <span>AI Chatbox</span>
+      <button class="chatbox-close" id="chatCloseBtn" title="Close">×</button>
+    </div>
+    <div class="chatbox-messages" id="chatMessages">
+      <div class="chat-msg ai">
+        <span class="bubble">Hello! 👋<br>I'm your AI assistant. How can I help you today?</span>
+      </div>
+    </div>
+    <form class="chatbox-input-area" id="chatForm" autocomplete="off">
+      <input type="text" id="chatInput" placeholder="Type your message..." required />
+      <button type="submit">Send</button>
+    </form>
+  </div>
+
+  <script>
+    // Toggle
+    const chatbox = document.getElementById('chatbox');
+    const chatToggleBtn = document.getElementById('chatToggleBtn');
+    const chatCloseBtn = document.getElementById('chatCloseBtn');
+    chatToggleBtn.onclick = function() { chatbox.style.display = 'flex'; chatToggleBtn.style.display = 'none'; }
+    chatCloseBtn.onclick = function() { chatbox.style.display = 'none'; chatToggleBtn.style.display = 'flex'; }
+
+    // Chat logic (simulated AI)
+    const chatMessages = document.getElementById('chatMessages');
+    const chatForm = document.getElementById('chatForm');
+    const chatInput = document.getElementById('chatInput');
+
+    const aiResponses = [
+      "I'm here to help! Tell me more about your question.",
+      "That's an interesting question. Let me think...",
+      "Thank you for reaching out. Could you clarify a bit more?",
+      "I'm an AI assistant. I can answer your queries or guide you to the right resources.",
+      "Sure! Here's what I suggest...",
+      "Feel free to ask anything about my skills or experience.",
+      "Let me check that for you!",
+      "I appreciate your message. How can I assist further?"
+    ];
+
+    function appendMsg(msg, sender='user') {
+      const div = document.createElement('div');
+      div.className = 'chat-msg ' + sender;
+      div.innerHTML = `<span class="bubble">${msg}</span>`;
+      chatMessages.appendChild(div);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    chatForm.onsubmit = function(e) {
+      e.preventDefault();
+      const msg = chatInput.value.trim();
+      if (!msg) return;
+      appendMsg(msg, 'user');
+      chatInput.value = '';
+      setTimeout(() => {
+        // Simulated AI response (random)
+        const aiMsg = aiResponses[Math.floor(Math.random() * aiResponses.length)];
+        appendMsg(aiMsg, 'ai');
+      }, 700);
+    }
+  </script>
+</body>
+</html>
+<body>
+  <header>
+    <div class="container header-flex">
+      <div class="profile-top">
+        <img src="photo.jpg" alt="Tapas Chakraborty" class="profile-pic">
+        <div>
+          <h1>Tapas Chakraborty</h1>
+          <p class="tagline">Technology Driven IT Support & Infrastructure Specialist</p>
+        </div>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="#about">About</a></li>
+          <li><a href="#skills">Skills</a></li>
+          <li><a href="#certs">Certifications</a></li>
+          <li><a href="#experience">Experience</a></li>
+          <li><a href="#contact">Contact</a></li>
+          <li><a href="resume_tapas_chakraborty.pdf" download class="download">Download CV</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section id="about" class="section">
+      <div class="container">
+        <h2>About Me</h2>
+        <p>
+          Seasoned IT Support & Operations Professional with over a decade of experience in technical support, IT service management, cloud computing, and cybersecurity. Adept at managing global IT operations, delivering enterprise-wide solutions, and ensuring seamless system performance through proactive troubleshooting & risk mitigation. Strong background in ITIL frameworks, incident & problem management, Microsoft 365, and network security.
+        </p>
+      </div>
+    </section>
+
+    <section id="skills" class="section bg-light">
+      <div class="container">
+        <h2>Core Competencies</h2>
+        <ul class="skills-list">
+          <li>IT Support & Troubleshooting</li>
+          <li>IT Infrastructure/Data Centre/Network Management</li>
+          <li>Network & System Analysis & Administration</li>
+          <li>Incident, Problem & Change Management</li>
+          <li>Service Delivery / Project Management</li>
+          <li>Microsoft Office 365 & Azure AD</li>
+          <li>Root Cause Analysis / 5 Why Analysis</li>
+          <li>Cloud Computing & Virtualization</li>
+          <li>Network Security & Firewall Management</li>
+          <li>IT Asset & Inventory Management</li>
+          <li>RiskIQ & Threat Intelligence</li>
+          <li>ITIL & Service Management</li>
+          <li>SCCM & Software Deployment</li>
+          <li>VoIP, VPN & Remote Access Management</li>
+          <li>Technical Documentation & Reporting</li>
+          <li>Vendor & SLA Management</li>
+          <li>IT Procurement & Budgeting</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="certs" class="section">
+      <div class="container">
+        <h2>Certifications & Education</h2>
+        <ul>
+          <li>MCITP in Windows Server 2008</li>
+          <li>Cisco Certified Network Associate</li>
+          <li>ITIL V3 Foundation Certified</li>
+          <li>Advance Diploma in Web Centric Curriculum</li>
+          <li>Certified Azure AZ104</li>
+          <li>Bachelor of Science (PCM)</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="experience" class="section bg-light">
+      <div class="container">
+        <h2>Work Experience</h2>
+        
+        <div class="exp">
+          <h3>Senior Support Engineer – RiskIQ Platform<br>
+          <span>Tech Mahindra Allyis (Microsoft Project) | Jul 2022 – Feb 2025</span></h3>
+          <ul>
+            <li>Managed technical support and incident resolution for the RiskIQ platform, ensuring seamless threat intelligence operations.</li>
+            <li>Created & resolved tickets in Zendesk, efficiently handling user queries and technical escalations.</li>
+            <li>Worked with RiskIQ products to enhance cybersecurity measures and digital footprint analysis.</li>
+            <li>Administered user account lifecycle management, permissions, quota limits, and API tokens.</li>
+            <li>Generated and analyzed digital footprint reports for external attack surface management.</li>
+          </ul>
+        </div>
+        
+        <div class="exp">
+          <h3>Technology Specialist<br>
+          <span>Srijan Spectrum Pvt Ltd (Client: Mindtree, Larsen & Toubro Group) | Apr 2020 – Jul 2022</span></h3>
+          <ul>
+            <li>Provided technical support for Microsoft Teams, Exchange Online, and Azure AD across global regions.</li>
+            <li>Handled advanced troubleshooting, log analysis, PowerShell automation, and user/device management.</li>
+            <li>Resolved complex issues in VDI, file sharing, and OneDrive/SharePoint Online environments.</li>
+          </ul>
+        </div>
+
+        <div class="exp">
+          <h3>Senior IT Engineer<br>
+          <span>Scorg International Consulting Pvt. Ltd. (Client: Cognizant Technology Solutions, Kolkata) | Apr 2018 – Mar 2020</span></h3>
+          <ul>
+            <li>Managed Active Directory Services, Jira ticketing, VPN/Wi-Fi support, and Citrix VDI troubleshooting.</li>
+            <li>Deployed software via SCCM, supported hardware onboarding, and conducted remote troubleshooting.</li>
+            <li>Installed enterprise security solutions and managed IT Asset Management (ITAM) portal.</li>
+          </ul>
+        </div>
+
+        <div class="exp">
+          <h3>Assistant Manager – IT<br>
+          <span>Aubonpain Café India Pvt. Ltd. (RP-SG Group) | Mar 2014 – Oct 2015</span></h3>
+          <ul>
+            <li>Configured and maintained enterprise IT infrastructure, networks, and security devices.</li>
+            <li>Managed IT procurement, inventory, and asset lifecycle across multiple locations.</li>
+            <li>Supported Shawman POS, Microsoft Dynamics AX 2012 ERP, and vendor management.</li>
+            <li>Created & managed CapEx and OpEx budgets.</li>
+          </ul>
+        </div>
+
+        <div class="exp">
+          <h3>IT Engineer (EUS)<br>
+          <span>Microland Pvt. Ltd. | Jun 2007 – Apr 2010</span></h3>
+          <ul>
+            <li>Clients: Satyam BPO, Tishman Speyer, Deutsche Bank AG</li>
+            <li>Installed, configured, and troubleshot OS, network, VPN, Citrix, and enterprise apps.</li>
+            <li>Received MAX Award for Excellence in Customer Service.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+    
+    <section id="contact" class="section">
+      <div class="container">
+        <h2>Contact</h2>
+        <ul class="contact-list">
+          <li><strong>Email:</strong> <a href="mailto:tapasda_chakraborty@hotmail.com">tapasda_chakraborty@hotmail.com</a></li>
+          <li><strong>Phone:</strong> <a href="tel:+917980787690">+91-7980787690</a></li>
+          <li><strong>Location:</strong> Kolkata, India</li>
+          <li><strong>LinkedIn:</strong> <a href="https://www.linkedin.com/in/tapas-chakraborty-36a8548a/" target="_blank">Tapas Chakraborty</a></li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      &copy; <span id="year"></span> Tapas Chakraborty | All rights reserved.
+    </div>
+  </footer>
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+    // Highlight navigation on scroll (optional)
+    const sections = document.querySelectorAll('section');
+    const navLinks = document.querySelectorAll('nav ul li a');
+    window.onscroll = () => {
+      let current = '';
+      sections.forEach(section => {
+        const sectionTop = section.offsetTop - 70;
+        if(window.scrollY >= sectionTop) current = section.getAttribute('id');
+      });
+      navLinks.forEach(link => {
+        link.classList.remove('active');
+        if(link.getAttribute('href').includes(current)) link.classList.add('active');
+      });
+    };
+  </script>
+</body>
+</html>
